@@ -1,0 +1,19 @@
+{
+  "Sunny18": {
+    "password": "4cbb69ea6883d7b972d822b01eb91db3424ccc564ed124889994c7177c1d9990",
+    "email": "",
+    "created_at": "2025-08-16T12:41:58.164072",
+    "preferences": {
+      "default_country": "worldwide",
+      "default_category": "general",
+      "default_language": "en",
+      "summary_style": "concise"
+    },
+    "activity": {
+      "login_count": 12,
+      "last_login": "2025-08-16T20:27:51.310173",
+      "summaries_generated": 17,
+      "fact_checks_performed": 6
+    }
+  }
+}
