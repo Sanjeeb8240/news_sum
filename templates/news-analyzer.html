@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔥 NLP News Analyzer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            animation: fadeInDown 1s ease-out;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .game-tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            animation: fadeInUp 1s ease-out 0.3s both;
+        }
+
+        .tab {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            margin: 0 5px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .tab:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .tab.active {
+            background: #ff6b6b;
+            transform: scale(1.05);
+        }
+
+        .content-panel {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            animation: slideInUp 0.8s ease-out;
+            backdrop-filter: blur(10px);
+            display: none;
+        }
+
+        .content-panel.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e8ed;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #f8fafc;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.5s ease;
+        }
+
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .results {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .news-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .news-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+
+        .news-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .news-summary {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .news-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        .sentiment {
+            padding: 5px 15px;
+            border-radius: 20px;
+            color: white;
+            font-weight: bold;
+        }
+
+        .sentiment.positive { background: #27ae60; }
+        .sentiment.negative { background: #e74c3c; }
+        .sentiment.neutral { background: #95a5a6; }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #667eea;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(102, 126, 234, 0.1);
+            border-left: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        .fake-result {
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            font-weight: bold;
+            text-align: center;
+            animation: bounceIn 0.6s ease-out;
+        }
+
+        .fake-result.real {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+
+        .fake-result.fake {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(100px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes bounceIn {
+            0%, 20%, 40%, 60%, 80% { transform: translateY(0) scale(1); }
+            10%, 30%, 50%, 70% { transform: translateY(-10px) scale(1.05); }
+            90% { transform: scale(0.95); }
+            100% { transform: scale(1); }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 { font-size: 2rem; }
+            .game-tabs { flex-wrap: wrap; }
+            .tab { margin: 5px; padding: 10px 20px; }
+            .container { padding: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 NLP News Analyzer</h1>
+            <p>AI-Powered News Analysis • Global Coverage • Real-time Insights</p>
+        </div>
+
+        <div class="game-tabs">
+            <button class="tab active" onclick="switchTab('country')">🌍 Country News</button>
+            <button class="tab" onclick="switchTab('fake')">🕵️ Fake Detector</button>
+            <button class="tab" onclick="switchTab('category')">📂 Categories</button>
+        </div>
+
+        <!-- Country News Panel -->
+        <div id="country-panel" class="content-panel active">
+            <h2>🌍 Discover Global News</h2>
+            <div class="form-group">
+                <label>🌏 Select Your Country:</label>
+                <select id="country-select" class="form-control">
+                    <option value="in">🇮🇳 India</option>
+                    <option value="us">🇺🇸 United States</option>
+                    <option value="gb">🇬🇧 United Kingdom</option>
+                    <option value="ca">🇨🇦 Canada</option>
+                    <option value="au">🇦🇺 Australia</option>
+                    <option value="de">🇩🇪 Germany</option>
+                    <option value="fr">🇫🇷 France</option>
+                    <option value="jp">🇯🇵 Japan</option>
+                </select>
+            </div>
+            <button class="btn" onclick="fetchCountryNews()">🚀 Analyze News</button>
+            <div id="country-results"></div>
+        </div>
+
+        <!-- Fake News Panel -->
+        <div id="fake-panel" class="content-panel">
+            <h2>🕵️ AI Fake News Detective</h2>
+            <div class="form-group">
+                <label>📝 Enter news text to analyze:</label>
+                <textarea id="fake-text" class="form-control" rows="5" 
+                    placeholder="Paste any news article, headline, or claim here..."></textarea>
+            </div>
+            <button class="btn" onclick="analyzeFakeNews()">🔍 Detect Fake News</button>
+            <div id="fake-results"></div>
+        </div>
+
+        <!-- Category News Panel -->
+        <div id="category-panel" class="content-panel">
+            <h2>📂 Explore News Categories</h2>
+            <div class="form-group">
+                <label>🎯 Choose Category:</label>
+                <select id="category-select" class="form-control">
+                    <option value="technology">💻 Technology</option>
+                    <option value="business">💼 Business</option>
+                    <option value="sports">⚽ Sports</option>
+                    <option value="health">🏥 Health</option>
+                    <option value="science">🔬 Science</option>
+                    <option value="entertainment">🎬 Entertainment</option>
+                </select>
+            </div>
+            <button class="btn" onclick="fetchCategoryNews()">🎯 Get News</button>
+            <div id="category-results"></div>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.content-panel').forEach(panel => panel.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName + '-panel').classList.add('active');
+        }
+
+        // API calls to Python backend
+        async function fetchCountryNews() {
+            const country = document.getElementById('country-select').value;
+            const resultsDiv = document.getElementById('country-results');
+            
+            resultsDiv.innerHTML = '<div class="loading"><div class="spinner"></div>Fetching global news...</div>';
+            
+            try {
+                const response = await fetch(`/api/country-news?country=${country}`);
+                const data = await response.json();
+                displayNews(data.articles, resultsDiv);
+            } catch (error) {
+                resultsDiv.innerHTML = '<p style="color: red;">Error fetching news. Please try again.</p>';
+            }
+        }
+
+        async function analyzeFakeNews() {
+            const text = document.getElementById('fake-text').value;
+            const resultsDiv = document.getElementById('fake-results');
+            
+            if (!text.trim()) {
+                alert('Please enter some text to analyze!');
+                return;
+            }
+            
+            resultsDiv.innerHTML = '<div class="loading"><div class="spinner"></div>AI analyzing content...</div>';
+            
+            try {
+                const response = await fetch('/api/fake-news', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: text })
+                });
+                const data = await response.json();
+                
+                const resultClass = data.is_fake ? 'fake' : 'real';
+                const resultIcon = data.is_fake ? '⛔' : '✅';
+                
+                resultsDiv.innerHTML = `
+                    <div class="fake-result ${resultClass}">
+                        <h3>${resultIcon} ${data.verdict}</h3>
+                        <p>${data.explanation}</p>
+                        <p><strong>Confidence: ${Math.round(data.confidence * 100)}%</strong></p>
+                    </div>
+                `;
+            } catch (error) {
+                resultsDiv.innerHTML = '<p style="color: red;">Analysis failed. Please try again.</p>';
+            }
+        }
+
+        async function fetchCategoryNews() {
+            const category = document.getElementById('category-select').value;
+            const resultsDiv = document.getElementById('category-results');
+            
+            resultsDiv.innerHTML = '<div class="loading"><div class="spinner"></div>Loading category news...</div>';
+            
+            try {
+                const response = await fetch(`/api/category-news?category=${category}`);
+                const data = await response.json();
+                displayNews(data.articles, resultsDiv);
+            } catch (error) {
+                resultsDiv.innerHTML = '<p style="color: red;">Error fetching news. Please try again.</p>';
+            }
+        }
+
+        function displayNews(articles, container) {
+            if (!articles || articles.length === 0) {
+                container.innerHTML = '<p>No articles found.</p>';
+                return;
+            }
+
+            const newsHtml = articles.map(article => `
+                <div class="news-card">
+                    <div class="news-title">${article.title}</div>
+                    <div class="news-summary">${article.summary}</div>
+                    <div class="news-meta">
+                        <span>📰 ${article.source}</span>
+                        <span class="sentiment ${article.sentiment_class}">${article.sentiment}</span>
+                        <span>📅 ${article.date}</span>
+                    </div>
+                </div>
+            `).join('');
+
+            container.innerHTML = `<div class="results">${newsHtml}</div>`;
+        }
+    </script>
+</body>
+</html>
