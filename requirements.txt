@@ -3,3 +3,4 @@ requests
 textblob
 google-generativeai
 python-dotenv
+gunicorn
