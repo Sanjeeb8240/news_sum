@@ -4,11 +4,15 @@ from textblob import TextBlob
 import google.generativeai as genai
 import re
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
 
-NEWSDATA_API_KEY = os.getenv('NEWSDATA_API_KEY', 'pub_dfd39213708245e6b983b3db29cfecff')
-GEMINI_API_KEY = os.getenv('GEMINI_API_KEY', 'AIzaSyCTBB1nDinuDwK5TCvC8fJcdKfzAhmBPKY')
+NEWSDATA_API_KEY = os.getenv('NEWSDATA_API_KEY')
+GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
+
 NEWSDATA_API_URL = 'https://newsdata.io/api/1/latest'
 
 try:

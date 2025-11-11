@@ -2,3 +2,4 @@ Flask
 requests
 textblob
 google-generativeai
+python-dotenv
